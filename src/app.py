@@ -1,13 +1,17 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 import pickle
 
-# Load the best model
-with open('best_rf_model_components.pkl', 'rb') as model_file:
-    best_model = pickle.load(model_file)
+# Load the best model and relevant data
+with open('model_and_data.pkl', 'rb') as model_file:
+    loaded_data = pickle.load(model_file)
+    best_model = loaded_data['model']
+    unique_category_values = loaded_data['unique_category_values']
+    min_oil_price = loaded_data['min_oil_price']
+    max_oil_price = loaded_data['max_oil_price']
+    best_hyperparameters = loaded_data['best_hyperparameters']
 
 # Load the feature engineering steps
 def preprocess_data(data):
@@ -39,21 +43,20 @@ def preprocess_data(data):
         data['family'] = np.where(data['family'].isin(cleaning_families), 'CLEANING', data['family'])
         data['family'] = np.where(data['family'].isin(hardware_families), 'HARDWARE', data['family'])
 
+    # Encode categorical variables using drop='first' and fit with training data
+    encoder = OneHotEncoder(categories=[unique_category_values['family'], unique_category_values['city'], unique_category_values['holiday_type']], drop='first', sparse=False)
+    encoder.fit(data[["family", "city", "holiday_type"]])
+    encoded_data = encoder.transform(data[["family", "city", "holiday_type"]])
+    column_names = encoder.get_feature_names_out(["family", "city", "holiday_type"])
+    encoded_df = pd.DataFrame(encoded_data, columns=column_names)
+    
+    # Combine encoded features with numerical features
+    data_encoded = pd.concat([data.drop(["family", "city", "holiday_type"], axis=1), encoded_df], axis=1)
+    
     # Feature Scaling
     scaler = StandardScaler()
-    num_cols = ['sales', 'transactions', 'dcoilwtico']
-    data[num_cols] = scaler.fit_transform(data[num_cols])
-
-    # Encoding The Categorical Variables
-    categorical_columns = ["family", "city", "holiday_type"]
-    encoder = OneHotEncoder()
-    one_hot_encoded_data = encoder.fit_transform(data[categorical_columns])
-
-    column_names = encoder.get_feature_names_out(categorical_columns)
-    data_encoded = pd.DataFrame(one_hot_encoded_data.toarray(), columns=column_names)
-
-    data_encoded = pd.concat([data, data_encoded], axis=1)
-    data_encoded.drop(categorical_columns, axis=1, inplace=True)
+    num_cols = ['transactions', 'dcoilwtico']
+    data_encoded[num_cols] = scaler.fit_transform(data_encoded[num_cols])
 
     return data_encoded
 
@@ -63,14 +66,14 @@ def main():
     st.write("This app predicts sales based on input features.")
 
     # User inputs
-    year = st.slider("Year", 2013, 2017)
+    year = st.number_input("Year", min_value=2013, max_value=2017, step=1, value=2017)
     month = st.slider("Month", 1, 12)
     day = st.slider("Day", 1, 31)
-    family = st.selectbox("Product Family", ["FOODS", "HOME", "CLOTHING", "GROCERY", "STATIONERY", "CLEANING", "HARDWARE"])
-    city = st.selectbox("City", ["Quito", "Santo Domingo", "Cuenca", "Guayaquil", "Manta", "Ambato", "Puyo", "Machala", "Salinas", "Esmeraldas", "Libertad", "Babahoyo", "Quevedo", "Latacunga", "Loja", "Riobamba"])
-    holiday_type = st.selectbox("Holiday Type", ["None", "Holiday", "Event", "Bridge", "Transfer", "Additional"])
+    family = st.selectbox("Product Family", unique_category_values['family'])
+    city = st.selectbox("City", unique_category_values['city'])
+    holiday_type = st.selectbox("Holiday Type", unique_category_values['holiday_type'])
     transactions = st.slider("Transactions", 0, 10000)
-    dcoilwtico = st.slider("Oil Price", -1.5, 2.5)
+    dcoilwtico = st.number_input("Oil Price", min_value=min_oil_price, max_value=max_oil_price, step=0.01, value=0.0)
     
     input_data = pd.DataFrame({
         'year': [year],
@@ -86,10 +89,12 @@ def main():
     # Preprocess the input data
     processed_input = preprocess_data(input_data)
 
-    # Make prediction
-    prediction = best_model.predict(processed_input)
+    # Add "Predict Sales" Button
+    if st.button("Predict Sales"):
+        # Make prediction
+        prediction = best_model.predict(processed_input)
 
-    st.write("Predicted Sales:", prediction)
+        st.write("Predicted Sales:", prediction)
 
 if __name__ == "__main__":
     main()
