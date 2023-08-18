@@ -89,6 +89,11 @@ def main():
     # Preprocess the input data
     processed_input = preprocess_data(input_data)
 
+    # Reorder columns of processed input to match expected order
+    column_names = processed_input.columns.tolist()  # Get column names in current order
+    column_names.remove('year')  # Remove 'year' as it's not needed for prediction
+    processed_input = processed_input[['year'] + column_names]
+
     # Add "Predict Sales" Button
     if st.button("Predict Sales"):
         # Make prediction
