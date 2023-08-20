@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 import pickle
+from tabulate import tabulate
 
 # Load the best model and relevant data
 with open('model_and_data.pkl', 'rb') as model_file:
@@ -69,35 +70,47 @@ def main():
     year = st.number_input("Year", min_value=2013, max_value=2017, step=1, value=2017)
     month = st.slider("Month", 1, 12)
     day = st.slider("Day", 1, 31)
+    day_of_week = st.number_input("Day of Week")
     family = st.selectbox("Product Family", unique_category_values['family'])
     city = st.selectbox("City", unique_category_values['city'])
     holiday_type = st.selectbox("Holiday Type", unique_category_values['holiday_type'])
-    transactions = st.slider("Transactions", 0, 10000)
-    dcoilwtico = st.number_input("Oil Price", min_value=min_oil_price, max_value=max_oil_price, step=0.01, value=0.0)
-    
-    input_data = pd.DataFrame({
-        'year': [year],
-        'month': [month],
-        'day': [day],
-        'family': [family],
-        'city': [city],
-        'holiday_type': [holiday_type],
-        'transactions': [transactions],
-        'dcoilwtico': [dcoilwtico]
-    })
+    transactions = st.number_input("Number of Transactions", min_value=0, max_value=10000, value=0)
+    onpromotion = st.number_input("Number of Items on Promotion")
+    dcoilwtico = st.number_input("Crude Oil Price (dcoilwtico)")
 
-    # Preprocess the input data
-    processed_input = preprocess_data(input_data)
-
-    # Reorder columns of processed input to match expected order
-    column_names = processed_input.columns.tolist()  # Get column names in current order
-    column_names.remove('year')  # Remove 'year' as it's not needed for prediction
-    processed_input = processed_input[['year'] + column_names]
-
-    # Add "Predict Sales" Button
+# Add "Predict Sales" Button
     if st.button("Predict Sales"):
+        # Create a dictionary with input data
+        input_df = pd.DataFrame({
+            "family": [family],
+            "onpromotion": [onpromotion],
+            "city": [city],
+            "transactions": [transactions],
+            "holiday_type": [holiday_type],
+            "dcoilwtico": [dcoilwtico],
+            "year": [year],
+            "month": [month],
+            "day": [day],
+            "day_of_week": [day_of_week]
+        })
+
+        # Preprocess the input data
+        processed_input = preprocess_data(input_df)
+
+
+        # Reorder columns of processed input to match expected order
+        column_names = processed_input.columns.tolist()  # Get column names in current order
+        column_names.remove('year')  # Remove 'year' as it's not needed for prediction
+        final_processed_input = processed_input[['year'] + column_names]
+
+        # Print the processed input DataFrame
+        print("Processed Input DataFrame:")
+        print(tabulate(final_processed_input, headers='keys', tablefmt='grid'))
+
+
         # Make prediction
-        prediction = best_model.predict(processed_input)
+        prediction = best_model.predict(final_processed_input)
+
 
         st.write("Predicted Sales:", prediction)
 
