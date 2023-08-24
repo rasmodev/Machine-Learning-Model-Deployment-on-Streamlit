@@ -5,7 +5,6 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 import pickle
 from tabulate import tabulate
 
-
 # Loading the trained model and components
 encoder = pickle.load(open('categorical_encoder.pkl', 'rb'))
 model = pickle.load(open('best_rf_model.pkl', 'rb'))
@@ -25,10 +24,11 @@ with col1:
                                             'GROCERY', 'HARDWARE', 'HOME', 'LADIESWEAR', 'LAWN AND GARDEN', 'LIQUOR,WINE,BEER', 
                                             'PET SUPPLIES', 'STATIONERY'])
     input_df['onpromotion'] = st.number_input("Number of Items on Promotion", step=1)
-    input_df['city'] = st.selectbox("City", unique_category_values['city'])
+    input_df['city'] = st.selectbox("City",  ['Ambato', 'Babahoyo', 'Cayambe', 'Cuenca', 'Daule', 'El Carmen', 'Esmeraldas',
+                                         'Guaranda', 'Guayaquil', 'Ibarra', 'Latacunga', 'Libertad', 'Loja', 'Machala', 'Manta',
+                                         'Playas', 'Puyo', 'Quevedo', 'Quito', 'Riobamba', 'Salinas', 'Santo Domingo'])
     input_df['cluster'] = st.selectbox("Cluster", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17])
     input_df['transactions'] = st.number_input("Number of Transactions")
-    input_df['holiday_type'] = st.selectbox("Holiday Type", ['Additional', 'Bridge', 'Event', 'Holiday', 'Transfer'])    
 
 with col2:
     input_df['dcoilwtico'] = st.slider("Crude Oil Price", min_value=1.00, max_value=100.00, step=0.1)  
@@ -42,42 +42,41 @@ if st.button("Predict Sales"):
     # Convert the input data to a pandas DataFrame
     input_data = pd.DataFrame([input_df])
 
+    # Reorder the columns to match the training column order
+    input_data = input_data[['store_nbr', 'family', 'onpromotion', 'city', 'cluster', 'transactions', 'dcoilwtico', 'year', 'month', 'day', 'day_of_week']]
 
-    # Scale the Numerical Columns(Min-Max Scaling)
+    # Scale the Numerical Columns (Min-Max Scaling)
     # create an instance of StandardScaler
     scaler = StandardScaler()
-    
-    #select the numerical columns
+
+    # select the numerical columns
     num_cols = ['transactions', 'dcoilwtico']
-    
+
     # Scale the numerical columns
     input_data[num_cols] = scaler.fit_transform(input_data[num_cols])
 
-    # Encode the categorical columns
-    cat_cols = ['family', 'city', 'holiday_type']
+    # Encode the categorical columns using the trained encoder
+    cat_cols = ['family', 'city']
+    encoded_data = encoder.transform(input_data[cat_cols])
 
-    # Transform the categorical columns using the fitted encoder    
-    one_hot_encoded_data = encoder.fit_transform(input_data[cat_cols])
+    # Convert the encoded data to a DataFrame
+    encoded_df = pd.DataFrame(encoded_data.toarray(), columns=encoder.get_feature_names_out(['family', 'city']))
 
-    # Create column names for the one-hot encoded data
-    column_names = encoder.get_feature_names_out(cat_cols)
-    
-    # Convert the one-hot encoded data to a DataFrame
-    final_df = pd.DataFrame(one_hot_encoded_data.toarray(), columns=column_names)
-    
-    # Concatenate the original dataframe with the one-hot encoded data
-    final_df = pd.concat([input_data, final_df], axis=1)
+    # Concatenate the original dataframe with the encoded data
+    final_df = pd.concat([input_data, encoded_df], axis=1)
 
     # Drop the original categorical columns
     final_df.drop(cat_cols, axis=1, inplace=True)
 
+    # Add a new column called predicted_sales
+    final_df['predicted_sales'] = model.predict(final_df)
+
     # Print the tabulated dataframe
     print(tabulate(final_df, headers=final_df.columns, tablefmt='grid'))
 
-    # Add a new column called predicted_sales
-    final_df['predicted_sales'] = model.predict(final_df)[0]
-
     # Display the prediction
-    st.write(f"The predicted sales are: {final_df['predicted_sales']}")
+    st.write("The predicted sales are:")
+    st.table(final_df['predicted_sales'])
     st.table(final_df)
 
+st.balloons()
