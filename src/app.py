@@ -10,10 +10,23 @@ encoder = pickle.load(open('categorical_encoder.pkl', 'rb'))
 model = pickle.load(open('best_rf_model.pkl', 'rb'))
 unique_category_values = pickle.load(open('unique_category_values.pkl', 'rb'))
 
-st.image("https://ultimahoraec.com/wp-content/uploads/2021/03/dt.common.streams.StreamServer-768x426.jpg")
+st.image("https://pbs.twimg.com/media/DywhyJiXgAIUZej?format=jpg&name=medium")
 st.title("Sales Prediction App")
 
 st.caption("This app predicts sales patterns of Corporation Favorita over time in different stores in Ecuador based on the inputs.")
+
+# Design the sidebar
+st.sidebar.header("Description of The Required Input Fields")
+
+# Create a sidebar with input field descriptions
+st.sidebar.markdown("## Input Field Descriptions")
+st.sidebar.markdown("**Store Number**: The number of the store.")
+st.sidebar.markdown("**Product Family**: Product Family such as 'AUTOMOTIVE', 'BEAUTY', etc.")
+st.sidebar.markdown("**Number of Items on Promotion**: Number of items on promotion within a particular shop.")
+st.sidebar.markdown("**city**: City where the store is located.")
+st.sidebar.markdown("**cluster**: Cluster number which is a grouping of similar stores.")
+st.sidebar.markdown("**transactions**: Number of transactions.")
+st.sidebar.markdown("**Crude Oil Price**: Daily Crude Oil Price.")
 
 # Create the input fields
 input_df = {}
@@ -78,5 +91,3 @@ if st.button("Predict Sales"):
     st.write("The predicted sales are:")
     st.table(final_df['predicted_sales'])
     st.table(final_df)
-
-st.balloons()
