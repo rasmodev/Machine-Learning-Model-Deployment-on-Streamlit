@@ -1,10 +1,7 @@
 import pandas as pd
 import streamlit as st
 import numpy as np
-from matplotlib import pyplot as plt
 import pickle
-import sklearn 
-from PIL import Image
 
 # Load the saved components:
 with open("rf_model.pkl", "rb") as f:
