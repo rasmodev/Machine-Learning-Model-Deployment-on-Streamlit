@@ -50,9 +50,12 @@ The sales prediction model was trained using various machine learning techniques
 - Standard scaler for numerical features
 - Machine learning model (Random Forest Regressor)
 
-## App Screenshot
+## App Screenshot Before Prediction
 
-![App Screenshot](https://pbs.twimg.com/media/DywhyJiXgAIUZej?format=jpg&name=medium)
+![App Screenshot Before Prediction](https://github.com/rasmodev/Machine-Learning-Model-Deployment-on-Streamlit/blob/main/screenshots/App_interface_before_pred.png)
+
+## App Screenshot After Prediction
+![App Screenshot After Prediction](https://github.com/rasmodev/Machine-Learning-Model-Deployment-on-Streamlit/blob/main/screenshots/App_Interface_After_Pred.png)
 
 ## License
 
