@@ -2,6 +2,17 @@
 
 This repository contains a Streamlit web application that predicts sales patterns of Corporation Favorita over time in different stores in Ecuador based on user inputs. The predictions are made using a trained machine learning model.
 
+## Summary
+|     Streamlit App Code|     Power BI Dashboard|     Published Article|    Deployed Streamlit App on Hugging Face    
+| -------------                  | -------------    | -------------    |    -----------------    
+|[Python code for the Streamlit App](https://github.com/rasmodev/Machine-Learning-Model-Deployment-on-Streamlit/blob/main/src/app.py)|  [Interactive Dashboard](https://app.powerbi.com/view?r=eyJrIjoiZGE2NmNlNWQtMzU1Ny00MzQ2LTljMGQtNTA1ZmYxYmY4MDhhIiwidCI6IjQ0ODdiNTJmLWYxMTgtNDgzMC1iNDlkLTNjMjk4Y2I3MTA3NSJ9) |  [Published Article on Medium](https://medium.com/@rasmowanyama/deploying-a-machine-learning-streamlit-app-for-sales-prediction-2bc6170658c) |[Link to Streamlit App](https://rasmodev-sales-prediction-app.hf.space/)
+
+## App Screenshot Before Prediction
+![App Screenshot Before Prediction](https://github.com/rasmodev/Machine-Learning-Model-Deployment-on-Streamlit/blob/main/screenshots/App_interface_before_pred.png)
+
+## App Screenshot After Prediction
+![App Screenshot After Prediction](https://github.com/rasmodev/Machine-Learning-Model-Deployment-on-Streamlit/blob/main/screenshots/App_Interface_After_Pred.png)
+
 ## Getting Started
 
 To use the Sales Prediction App, follow these steps:
@@ -42,20 +53,12 @@ The Sales Prediction App allows you to input various parameters related to the s
 - Plotly
 
 ## Model and Components
-
 The sales prediction model was trained using various machine learning techniques. The trained model is loaded and used for making predictions in the app. The following components are used in the app:
 
 - Data imputers (numerical and categorical)
 - One-hot encoder for categorical features
 - Standard scaler for numerical features
 - Machine learning model (Random Forest Regressor)
-
-## App Screenshot Before Prediction
-
-![App Screenshot Before Prediction](https://github.com/rasmodev/Machine-Learning-Model-Deployment-on-Streamlit/blob/main/screenshots/App_interface_before_pred.png)
-
-## App Screenshot After Prediction
-![App Screenshot After Prediction](https://github.com/rasmodev/Machine-Learning-Model-Deployment-on-Streamlit/blob/main/screenshots/App_Interface_After_Pred.png)
 
 ## License
 
